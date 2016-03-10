@@ -1,0 +1,59 @@
+{
+    "development": {
+        "host": "localhost",
+        "port": 5000,
+        "database": {
+            "dataWarehouse": {
+                "host": "teradata.url.com",
+                "username": "user",
+                "password": "pass"
+            },
+            "appData": {
+                "username": "user",
+                "password": "password",
+                "database": "ATP",
+                "host":"3.23.115.251",
+                "authDB": "admin"
+            }
+        },
+        "session_secret": "secret_session_key"
+    },
+    "test": {
+        "host": "localhost",
+        "port": 5000,
+        "database": {
+            "dataWarehouse": {
+                "host":"teradata.url.com",
+                "username": "user",
+                "password": "password"
+            },
+            "appData": {
+                "username": "username",
+                "password": "password",
+                "database": "ATP",
+                "host":"3.23.115.251",
+                "authDB": "admin"
+            }
+        },
+        "session_secret": "secret_session_key"
+    },
+    "production": {
+        "host": "",
+        "port": 3001,
+        "database": {
+            "dataWarehouse": {
+                "host":"teradata.url.com",
+                "username": "user",
+                "password": "password"
+            },
+            "appData": {
+                "username": "david",
+                "password": "pa55word",
+                "database": "ATP",
+                "host":"3.23.115.251",
+                "authDB": "admin"
+            }
+        },
+        "session_secret": "secret_session_key"
+    }
+}

@@ -173,11 +173,12 @@ def get_report_data():
     network_search = json.loads(request.data)['network']
     start_timestamp = json.loads(request.data)['start_time']
     end_timestamp = json.loads(request.data)['end_time']
+    metrics = json.loads(request.data)['metrics']
 
     # currently gets first result. eventually need to have user disambiguate
     network = rentrak_api.search_networks(network_search)[0]
 
-    report_parms = dict(select_fields=["NETWORK_NAME", "RATING_LIVE", "HOURS_LIVE", "REACH_LIVE", "NETWORK_ID"],
+    report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID"] + metrics,
                         group_fields=["NETWORK_ID"],
                         dataset_filter="NETWORK_ID={net_id} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
                             net_id=network['id'], start_time=start_timestamp, end_time=end_timestamp))
@@ -190,6 +191,12 @@ def get_report_data():
     rows = rentrak_api.get_report_rows(report_id)
 
     return json.dumps(rows)
+
+
+@app.route('/getMetrics/')
+@app_login.required_login
+def get_metrics():
+    return json.dumps(rentrak_api.get_all_metrics(), default=atp_classes.JSONHandler.JSONHandler)
 
 
 @app.route('/admin/getUsers/')

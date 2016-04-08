@@ -58,6 +58,16 @@ class Rentrak:
         else:
             return json.loads(response.text)
 
+    def get_all_metrics(self):
+        headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
+
+        response = requests.get(self.api_url + '/metrics/', headers=headers)
+
+        if response.status_code != 200:
+            raise Exception('Error while getting metrics. ' + json.loads(response.text)['message'])
+        else:
+            return json.loads(response.text)
+
     def get_reports(self):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 

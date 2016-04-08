@@ -30,9 +30,34 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
       $scope.brand_name = '';
       $scope.deal_name = '';
       $scope.results = [];
+      $scope.metrics = [];
+      $scope.metrics_chosen = [];
 
       $scope.init = function() {
-        $scope.initiated = true;
+        $http.get('/getMetrics/').then(function(res){
+            var metrics = res.data;
+
+            angular.forEach(metrics, function(metric) {
+                if($scope.metrics.length == 0){
+                    $scope.metrics.push(metric);
+                }else{
+                    var doInsert = true;
+
+                    for(var i = 0; i < $scope.metrics.length; i++) {
+                        if($scope.metrics[i].id == metric.id) {
+                            doInsert = false;
+                            break;
+                        }
+                    }
+
+                    if(doInsert){
+                        $scope.metrics.push(metric);
+                    }
+                }
+            });
+
+            $scope.initiated = true;
+        });
       };
 
       $scope.query = function() {
@@ -47,10 +72,11 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
             $scope.results = res.data;
 
             angular.forEach($scope.results, function(row){
-                RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH).then(function(rows){
-                    row.RATINGS = rows[0].rating_live;
-                    row.HOURS = rows[0].hours_live;
-                    row.REACH = rows[0].reach_live;
+                RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH, $scope.metrics_chosen)
+                .then(function(rows){
+                    angular.forEach($scope.metrics_chosen, function(metric) {
+                        row[metric] = rows[0][metric];
+                    });
 
                     row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
                 });
@@ -95,6 +121,16 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
       $scope.onDealSelect = function($item, $model, $label, $event) {
         $scope.deal_id = $item.DEAL_ID;
         $scope.deal_name = $item.DEAL_NAME;
+      }
+
+      $scope.onMetricSelect = function() {
+        $scope.metrics_chosen = [];
+
+        $scope.metrics.map(function(metric){
+            if(metric.selected){
+                $scope.metrics_chosen.push(metric.name);
+            }
+        });
       }
 
       $scope.exportToExcel=function(tableId){

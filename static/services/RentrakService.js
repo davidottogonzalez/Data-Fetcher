@@ -1,7 +1,7 @@
 angular.module('ServicesModule').factory('RentrakService', ['$http',
     function($http){
 
-    var getRentrakData = function(network, startTimestamp, unitLength){
+    var getRentrakData = function(network, startTimestamp, unitLength, metricsList){
 
         startTimeObj = new Date(startTimestamp);
         endTimeObj = new Date(startTimestamp);
@@ -13,7 +13,8 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
         stringEnd = endTimeObj.getFullYear() + '-' + addZero(endTimeObj.getMonth() + 1) + '-' + addZero(endTimeObj.getDate())
                       + 'T' + addZero(endTimeObj.getHours()) + ":" + addZero(endTimeObj.getMinutes()) + ":" + addZero(endTimeObj.getSeconds())
 
-        return $http.post('/getRentrakData/', {network: network, start_time: stringStart, end_time: stringEnd}).then(function(res){
+        return $http.post('/getRentrakData/', {network: network, start_time: stringStart, end_time: stringEnd, metrics: metricsList})
+        .then(function(res){
             return res.data;
         });
     }

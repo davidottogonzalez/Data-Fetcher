@@ -271,6 +271,11 @@ div.coffeeBreak
   border-top-right-radius: 0;
 }
 
+.metricsContainer {
+    height: 150px;
+    overflow: auto;
+}
+
 /*table css*/
 .heading_row {
     background-color: #CCCCCC !important;

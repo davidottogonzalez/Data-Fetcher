@@ -18,8 +18,8 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
   $locationProvider.html5Mode(true);
 }])
 
-.controller('QueryCtrl', ['$scope', '$http', 'ngDialog', 'ExcelService',
-    function($scope, $http, ngDialog, ExcelService) {
+.controller('QueryCtrl', ['$scope', '$http', 'ngDialog', 'ExcelService', 'RentrakService',
+    function($scope, $http, ngDialog, ExcelService, RentrakService) {
       $scope.initiated = false;
       $scope.brand_id = '';
       $scope.ad_id = '';
@@ -45,6 +45,16 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
 
         $http.post('/queryWithParams/', {params: params}).then(function(res){
             $scope.results = res.data;
+
+            angular.forEach($scope.results, function(row){
+                RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH).then(function(rows){
+                    row.RATINGS = rows[0].rating_live;
+                    row.HOURS = rows[0].hours_live;
+                    row.REACH = rows[0].reach_live;
+
+                    row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
+                });
+            });
         });
       }
 

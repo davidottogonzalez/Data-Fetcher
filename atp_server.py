@@ -1,5 +1,6 @@
 from flask import Flask, url_for, redirect, json, request, make_response
 import atp_classes
+import time
 
 app = Flask(__name__)
 config = atp_classes.Config()
@@ -7,6 +8,7 @@ app.secret_key = config.get_config()['session_secret']
 cache = atp_classes.Cache()
 app_db = atp_classes.AppDB()
 teradata_db = atp_classes.TeradataDB()
+rentrak_api = atp_classes.Rentrak()
 app_login = atp_classes.AppLogin(app)
 
 
@@ -85,8 +87,8 @@ def query_with_params():
         AND brdcast_week_id <= {end_week_id}
         AND business_type_cd = 'CURRENT_CONTRACTS'
         ''' \
-    .format(ad_id=form_params['ad_id'], brand_id=form_params['brand_id'], deal_id=form_params['deal_id'],
-            st_week_id=form_params['st_week_id'], end_week_id=form_params['end_week_id'])
+        .format(ad_id=form_params['ad_id'], brand_id=form_params['brand_id'], deal_id=form_params['deal_id'],
+                st_week_id=form_params['st_week_id'], end_week_id=form_params['end_week_id'])
 
     print query_string
 
@@ -109,7 +111,7 @@ def find_advertisers():
         FROM ADVERTISER
         WHERE LOWER(ADVERTISER_NAME) LIKE LOWER('{search}%')
         AND SRC_SYS_ID = 1030
-        '''\
+        ''' \
         .format(search=search)
 
     results = teradata_db.execute_query(query_string)
@@ -131,7 +133,7 @@ def find_brands():
         FROM BRAND
         WHERE LOWER(BRAND_NAME) LIKE LOWER('{search}%')
         AND SRC_SYS_ID = 1030
-        '''\
+        ''' \
         .format(search=search)
 
     results = teradata_db.execute_query(query_string)
@@ -153,7 +155,7 @@ def find_deals():
         FROM sales_detail_fact
         WHERE LOWER(DEAL_NAME) LIKE LOWER('{search}%')
         AND SRC_SYS_ID = 1030
-        '''\
+        ''' \
         .format(search=search)
 
     results = teradata_db.execute_query(query_string)
@@ -162,6 +164,32 @@ def find_deals():
         raise Exception(results)
 
     return json.dumps(results)
+
+
+@app.route('/getRentrakData/', methods=['POST'])
+@app_login.required_login
+@cache
+def get_report_data():
+    network_search = json.loads(request.data)['network']
+    start_timestamp = json.loads(request.data)['start_time']
+    end_timestamp = json.loads(request.data)['end_time']
+
+    # currently gets first result. eventually need to have user disambiguate
+    network = rentrak_api.search_networks(network_search)[0]
+
+    report_parms = dict(select_fields=["NETWORK_NAME", "RATING_LIVE", "HOURS_LIVE", "REACH_LIVE", "NETWORK_ID"],
+                        group_fields=["NETWORK_ID"],
+                        dataset_filter="NETWORK_ID={net_id} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
+                            net_id=network['id'], start_time=start_timestamp, end_time=end_timestamp))
+
+    report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
+
+    while rentrak_api.get_report_status(report_id) != 'Completed':
+        time.sleep(2)
+
+    rows = rentrak_api.get_report_rows(report_id)
+
+    return json.dumps(rows)
 
 
 @app.route('/admin/getUsers/')

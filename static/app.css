@@ -299,6 +299,10 @@ td.resultQuery {
     font-size: 18px;
 }
 
+td {
+    overflow: hidden;
+}
+
 /*scrollbars css*/
 ::-webkit-scrollbar {
     width: 12px;

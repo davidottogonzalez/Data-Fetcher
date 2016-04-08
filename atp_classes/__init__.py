@@ -5,3 +5,4 @@ from atp_classes.AppDB import AppDB
 from atp_classes.TeradataDB import TeradataDB
 from atp_classes.AppLogin import AppLogin
 from atp_classes.User import User
+from atp_classes.Rentrak import Rentrak

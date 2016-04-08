@@ -83,8 +83,8 @@
         </a>
         <table id="results_table" class="table table-bordered">
             <tr>
-                <th>Ad ID</th>
-                <th>Ad Name</th>
+                <th>Advertiser ID</th>
+                <th>Advertiser Name</th>
                 <th>Brand ID</th>
                 <th>Brand Name</th>
                 <th>Deal ID</th>
@@ -94,6 +94,9 @@
                 <th>ISCII</th>
                 <th>Property Name</th>
                 <th>Unit Length</th>
+                <th>Ratings</th>
+                <th>Hours</th>
+                <th>Reach</th>
             </tr>
             <tr ng-repeat="row in results">
                 <td>{{row.ADVERTISER_ID}}</td>
@@ -107,6 +110,9 @@
                 <td>{{row.ISCII_CD}}</td>
                 <td>{{row.PROPERTY_NAME}}</td>
                 <td>{{row.UNIT_LENGTH}}</td>
+                <td>{{row.RATINGS}}</td>
+                <td>{{row.HOURS}}</td>
+                <td>{{row.REACH}}</td>
             </tr>
         </table>
     </div>

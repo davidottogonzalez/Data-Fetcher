@@ -78,6 +78,33 @@ class Rentrak:
         else:
             return json.loads(response.text)
 
+    def get_tags(self, per_page=10, page_num=1, search=''):
+        headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
+        params = {"search": search, "per_page": per_page, "page": page_num}
+
+        response = requests.get(self.api_url + '/tags/', headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise Exception('Error while getting tags. ' + json.loads(response.text)['message'])
+        else:
+            return json.loads(response.text)
+
+    def get_all_tags(self):
+        page = 1
+        all_tags = []
+        continue_gathering = True
+
+        while continue_gathering:
+            next_tags = self.get_tags(page_num=page)
+            page += 1
+
+            if len(next_tags) == 0:
+                continue_gathering = False
+            else:
+                all_tags+= next_tags
+
+        return all_tags
+
     def submit_report(self, data):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 

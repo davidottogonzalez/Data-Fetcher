@@ -74,7 +74,7 @@ class TeradataDB:
                 columns = cur.description
 
                 # Fetch table results
-                for row in cur:
+                for row in cur.fetchall():
                     result_obj = {}
                     for index, val in enumerate(columns):
                         # Remove characters and dot which precedes column name for key values

@@ -1,4 +1,6 @@
 import atp_classes, re, platform, os
+import jaydebeapi, jpype
+import teradata
 
 
 class TeradataDB:
@@ -13,8 +15,6 @@ class TeradataDB:
         result_rows = []
 
         if platform.mac_ver()[0] != '':
-            import teradata
-
             udaExec = teradata.UdaExec(appName="DataFetcher", version="1.0", logConsole=False)
 
             with udaExec.connect(method="odbc", system=self.host, username=self.username, password=self.password)as conn:
@@ -42,9 +42,6 @@ class TeradataDB:
 
             conn.close()
         else:
-            import jaydebeapi
-            import jpype
-
             try:
                 if not jpype.isJVMStarted():
                     current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

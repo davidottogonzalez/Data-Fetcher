@@ -33,6 +33,9 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
       $scope.metrics = [];
       $scope.metrics_chosen = [];
 
+      $scope.gatheringInfo = false;
+      $scope.errorResponse = false;
+
       $scope.init = function() {
         $http.get('/getMetrics/').then(function(res){
             var metrics = res.data;
@@ -68,19 +71,42 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
         params.end_week_id = $scope.end_week_id;
         params.deal_id = $scope.deal_id;
 
+        $scope.errorResponse = false;
+        $scope.gatheringInfo = true;
+        $scope.gatheringStatus = 'Querying On-Air as-run logs';
+
         $http.post('/queryWithParams/', {params: params}).then(function(res){
             $scope.results = res.data;
+            $scope.gatheringStatus = 'Querying Rentrak API';
 
-            angular.forEach($scope.results, function(row){
+            var rows_done = 0;
+
+            angular.forEach($scope.results, function(row, index){
                 RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH, $scope.metrics_chosen)
                 .then(function(rows){
+                    rows_done++;
+
                     angular.forEach($scope.metrics_chosen, function(metric) {
                         row[metric] = rows[0][metric];
                     });
 
                     row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
+
+                    if(rows_done == $scope.results.length)
+                    {
+                        $scope.gatheringInfo = false;
+                        $scope.gatheringStatus = '';
+                    }
+                },function(res){
+                    $scope.gatheringInfo = false;
+                    $scope.gatheringStatus = '';
+
+                    $scope.errorResponse = true;
+                    $scope.errorMessage = 'Error: ' + res.data
                 });
             });
+        },function(res){
+            $scope.errorMessage = 'Error: ' + res.data
         });
       }
 

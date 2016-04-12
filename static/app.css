@@ -347,3 +347,33 @@ td {
 .brandingFontColor{
     color: #542E91;
 }
+
+/*animate loading*/
+.glyphicon-refresh-animate {
+	animation-name: rotateThis;
+	animation-duration: .5s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+@-webkit-keyframes "rotateThis" {
+ from {
+        -webkit-transform: rotate( 0deg );
+    }
+ to  {
+        -webkit-transform: rotate( 360deg );
+    }
+}
+
+.right-inner-addon {
+    position: relative;
+}
+.right-inner-addon input {
+    padding-right: 30px;
+}
+.right-inner-addon i {
+    position: absolute;
+    right: 0px;
+    padding: 10px 12px;
+    pointer-events: none;
+}

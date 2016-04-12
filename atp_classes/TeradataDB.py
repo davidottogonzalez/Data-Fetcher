@@ -47,7 +47,7 @@ class TeradataDB:
 
             try:
                 if not jpype.isJVMStarted():
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     jar = r'{base}/lib/tdgssconfig.jar:{base}/lib/terajdbc4.jar'.format(base=current_dir)
                     args='-Djava.class.path=%s' % jar
 

@@ -62,24 +62,24 @@ class TeradataDB:
 
                 conn = jaydebeapi.connect('com.teradata.jdbc.TeraDriver','jdbc:teradata://{url}/USER={user},PASSWORD={password}'
                                           .format(url=self.host, user=self.username, password=self.password))
-                with conn.cursor() as cur:
-                    print "executing query"
+                cur = conn.cursor()
+                print "executing query"
 
-                    # Execute query
-                    cur.execute(query_string)
+                # Execute query
+                cur.execute(query_string)
 
-                    print "done executing query"
+                print "done executing query"
 
-                    # Get column names
-                    columns = cur.description
+                # Get column names
+                columns = cur.description
 
-                    # Fetch table results
-                    for row in cur:
-                        result_obj = {}
-                        for index, val in enumerate(columns):
-                            # Remove characters and dot which precedes column name for key values
-                            result_obj[re.sub(r'.*[.]', '', val[0])] = str(row[index]).strip()
-                        result_rows.append(result_obj)
+                # Fetch table results
+                for row in cur:
+                    result_obj = {}
+                    for index, val in enumerate(columns):
+                        # Remove characters and dot which precedes column name for key values
+                        result_obj[re.sub(r'.*[.]', '', val[0])] = str(row[index]).strip()
+                    result_rows.append(result_obj)
 
                 conn.close()
             except Exception, e:

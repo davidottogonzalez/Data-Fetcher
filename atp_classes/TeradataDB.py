@@ -48,8 +48,9 @@ class TeradataDB:
             try:
                 if not jpype.isJVMStarted():
                     current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    jar = r'{lib_path_gss}:{lib_path_jdbc}'.format(lib_path_gss=os.path.join(current_dir,"lib",'tdgssconfig.jar'),
-                                                                   lib_path_jdbc=os.path.join(current_dir,'lib','terajdbc4.jar'))
+                    jar = r'{lib_path_gss}{java_sep}{lib_path_jdbc}'.format(lib_path_gss=os.path.join(current_dir,"lib",'tdgssconfig.jar'),
+                                                                            java_sep=os.pathsep,
+                                                                            lib_path_jdbc=os.path.join(current_dir,'lib','terajdbc4.jar'))
                     args='-Djava.class.path=%s' % jar
 
                     if 'JVM_PATH' in os.environ:

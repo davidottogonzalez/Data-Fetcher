@@ -1,16 +1,16 @@
 {
     "development": {
-        "host": "localhost",
+        "host": "3.23.115.251",
         "port": 5000,
         "database": {
             "dataWarehouse": {
-                "host": "teradata.url.com",
-                "username": "user",
-                "password": "pass"
+                "host": "tdprodla.nbcuni.ge.com",
+                "username": "206438423",
+                "password": "NBCu2015bscs"
             },
             "appData": {
-                "username": "user",
-                "password": "password",
+                "username": "david",
+                "password": "pa55word",
                 "database": "ATP",
                 "host":"3.23.115.251",
                 "authDB": "admin"
@@ -18,9 +18,9 @@
         },
         "api": {
             "rentrak": {
-                "baseURL": "rentrak.com/api/org",
-                "username": "username",
-                "password": "password"
+                "baseURL": "https://rap-dev.rentrak.com/api/nbcu",
+                "username": "david.ottogonzalez",
+                "password": "71be60ae"
             }
         },
         "session_secret": "secret_session_key"

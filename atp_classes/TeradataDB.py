@@ -51,8 +51,7 @@ class TeradataDB:
 
                 self.is_executing = True
 
-                os.environ['PYTHONPATH'] = os.path.dirname(current_dir)
-                subprocess.call(['python', os.path.join(current_dir, 'TeradataDB.py'), query_string])
+                subprocess.call([sys.executable, os.path.join(current_dir, 'TeradataDB.py'), query_string], env=os.environ.copy())
 
                 with open("jdbc_results.json") as json_file:
                     result_rows = json.load(json_file)

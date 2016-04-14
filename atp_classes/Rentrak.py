@@ -19,7 +19,7 @@ class Rentrak:
 
         if username and password:
             response = requests.post(self.api_url + '/auth/login', headers=headers,
-                                     data=json.dumps({"user_id": username, "password": password}))
+                                     data=json.dumps({"user_id": username, "password": password}), verify=False)
 
             if response.status_code != 200:
                 raise Exception('Error while logging in. ' + json.loads(response.text)['message'])
@@ -30,7 +30,7 @@ class Rentrak:
             config = atp_classes.Config().get_config()
 
             response = requests.post(self.api_url + '/auth/login', headers=headers, data=json.dumps(
-                {"user_id": config['api']['rentrak']['username'], "password": config['api']['rentrak']['password']}))
+                {"user_id": config['api']['rentrak']['username'], "password": config['api']['rentrak']['password']}), verify=False)
 
             if response.status_code != 200:
                 raise Exception('Error while logging in. ' + json.loads(response.text)['message'])
@@ -41,7 +41,7 @@ class Rentrak:
     def search_networks(self, search):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/networks', params={"search": search}, headers=headers)
+        response = requests.get(self.api_url + '/networks', params={"search": search}, headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting network info. ' + json.loads(response.text)['message'])
@@ -51,7 +51,7 @@ class Rentrak:
     def search_tags(self, search):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/tags/', params={"search": search}, headers=headers)
+        response = requests.get(self.api_url + '/tags/', params={"search": search}, headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting tag info. ' + json.loads(response.text)['message'])
@@ -61,7 +61,7 @@ class Rentrak:
     def get_all_metrics(self):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/metrics/', headers=headers)
+        response = requests.get(self.api_url + '/metrics/', headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting metrics. ' + json.loads(response.text)['message'])
@@ -71,7 +71,7 @@ class Rentrak:
     def get_reports(self):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/users/' + self.__current_user + '/reports/', headers=headers)
+        response = requests.get(self.api_url + '/users/' + self.__current_user + '/reports/', headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting reports. ' + json.loads(response.text)['message'])
@@ -82,7 +82,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
         params = {"search": search, "per_page": per_page, "page": page_num}
 
-        response = requests.get(self.api_url + '/tags/', headers=headers, params=params)
+        response = requests.get(self.api_url + '/tags/', headers=headers, params=params, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting tags. ' + json.loads(response.text)['message'])
@@ -109,7 +109,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.post(self.api_url + '/users/' + self.__current_user + '/reports/',
-                                 headers=headers, data=data)
+                                 headers=headers, data=data, verify=False)
 
         if response.status_code != 202:
             raise Exception('Error while submitting report. ' + json.loads(response.text)['message'])
@@ -125,7 +125,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/users/' + self.__current_user + '/reportqueue/' + report_id,
-                                 headers=headers)
+                                 headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting report status. ' + json.loads(response.text)['message'])
@@ -141,7 +141,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/users/' + self.__current_user + '/reports/' + report_id + '/rows',
-                                headers=headers)
+                                headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting report rows. ' + json.loads(response.text)['message'])

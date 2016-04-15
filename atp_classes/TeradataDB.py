@@ -57,6 +57,9 @@ class TeradataDB:
 
                     jpype.startJVM(jvm_path, args)
 
+                if not jpype.isThreadAttachedToJVM():
+                    jpype.attachThreadToJVM()
+
                 conn = jaydebeapi.connect('com.teradata.jdbc.TeraDriver','jdbc:teradata://{url}/USER={user},PASSWORD={password}'
                                           .format(url=self.host, user=self.username, password=self.password))
                 cur = conn.cursor()

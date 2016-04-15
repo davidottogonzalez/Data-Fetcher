@@ -1,0 +1,4 @@
+name: cloudfoundry-conda
+channels:
+  - anaconda
+dependencies:

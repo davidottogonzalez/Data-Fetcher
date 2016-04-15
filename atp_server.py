@@ -1,6 +1,6 @@
 from flask import Flask, url_for, redirect, json, request, make_response
 import atp_classes
-import time
+import time, os
 
 app = Flask(__name__)
 config = atp_classes.Config()
@@ -257,5 +257,5 @@ def handle_exceptions(err):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=config.get_config()['host'], threaded=True,
-            port=config.get_config()['port'])
+    app.run(debug=False, host=config.get_config()['host'], threaded=False,
+            port=int(os.getenv('PORT', config.get_config()['port'])))

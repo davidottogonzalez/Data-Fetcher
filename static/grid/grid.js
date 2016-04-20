@@ -102,6 +102,7 @@ angular.module('myApp.grid', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesMo
         }
       ];
       $scope.day_date = '';
+      $scope.chosen_target = '';
 
       $scope.gatheringInfo = false;
       $scope.errorResponse = false;
@@ -110,34 +111,50 @@ angular.module('myApp.grid', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesMo
         $scope.initiated = true;
       };
 
+      $scope.getTag = function(search) {
+        return $http.post('/findTags/', {search: search}).then(function(res){
+            return res.data.map(function(t){
+                return t;
+              });
+        });
+      };
+
+      $scope.onTagSelect = function($item, $model, $label, $event) {
+        $scope.chosen_target = $item;
+      };
+
       $scope.getGrid = function() {
         $scope.errorResponse = false;
         $scope.gatheringInfo = true;
         $scope.gatheringStatus = 'Querying Rentrak API';
 
-        RentrakService.getRentrakGridData($scope.networks, $scope.day_date)
-        .then(function(rows){
-            $scope.buildGridVars(rows);
+        RentrakService.getRentrakGridData($scope.networks, $scope.day_date, '')
+        .then(function(full_rows){
+            RentrakService.getRentrakGridData($scope.networks, $scope.day_date, $scope.chosen_target)
+            .then(function(tag_rows){
+                $scope.buildGridVars(full_rows, '');
+                $scope.buildGridVars(tag_rows, 'tag_');
 
-            $scope.gatheringInfo = false;
-            $scope.gatheringStatus = '';
-        },function(res){
-            $scope.gatheringInfo = false;
-            $scope.gatheringStatus = '';
+                $scope.gatheringInfo = false;
+                $scope.gatheringStatus = '';
+            },function(res){
+                $scope.gatheringInfo = false;
+                $scope.gatheringStatus = '';
 
-            $scope.errorResponse = true;
-            $scope.errorMessage = 'Error: ' + res.data
+                $scope.errorResponse = true;
+                $scope.errorMessage = 'Error: ' + res.data
+            });
         });
       };
 
-      $scope.buildGridVars = function(rows){
+      $scope.buildGridVars = function(rows, pre){
         angular.forEach($scope.networks, function(network, index){
             angular.forEach(rows, function(row){
                 if(row.network_id == network.id){
-                    $scope.networks[index][row.local_daypart_name] = {};
-                    $scope.networks[index][row.local_daypart_name].reach_live = row.reach_live;
-                    $scope.networks[index][row.local_daypart_name].reach_dvr_same_day = row.reach_dvr_same_day;
-                    $scope.networks[index][row.local_daypart_name].reach_live_plus_dvr_same_day = row.reach_live_plus_dvr_same_day;
+                    $scope.networks[index][pre + row.local_daypart_name] = {};
+                    $scope.networks[index][pre + row.local_daypart_name].reach_live = Math.round(row.reach_live);
+                    $scope.networks[index][pre + row.local_daypart_name].reach_dvr_same_day = Math.round(row.reach_dvr_same_day);
+                    $scope.networks[index][pre + row.local_daypart_name].reach_live_plus_dvr_same_day = Math.round(row.reach_live_plus_dvr_same_day);
                 }
             });
         });

@@ -19,7 +19,7 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
         });
     };
 
-    var getRentrakGridData = function(networkList, dayDate){
+    var getRentrakGridData = function(networkList, dayDate, chosenTarget){
 
         startTimeObj = new Date(dayDate + " 00:00:00");
         endTimeObj = new Date(dayDate + " 00:00:00");
@@ -31,7 +31,7 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
         stringEnd = endTimeObj.getFullYear() + '-' + addZero(endTimeObj.getMonth() + 1) + '-' + addZero(endTimeObj.getDate())
                       + 'T' + addZero(endTimeObj.getHours()) + ":" + addZero(endTimeObj.getMinutes()) + ":" + addZero(endTimeObj.getSeconds())
 
-        return $http.post('/getRentrakGridData/', {networks: networkList, start_time: stringStart, end_time: stringEnd})
+        return $http.post('/getRentrakGridData/',{networks: networkList, start_time: stringStart, end_time: stringEnd, target: chosenTarget})
         .then(function(res){
             return res.data;
         });

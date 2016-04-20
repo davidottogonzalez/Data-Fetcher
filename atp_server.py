@@ -200,6 +200,7 @@ def get_report_grid_data():
     networks_list = json.loads(request.data)['networks']
     start_timestamp = json.loads(request.data)['start_time']
     end_timestamp = json.loads(request.data)['end_time']
+    target = json.loads(request.data)['target']
 
     network_query_string = ''
     for network in networks_list:
@@ -209,12 +210,17 @@ def get_report_grid_data():
             network_query_string += ' OR NETWORK_ID=' + str(network['id'])
     network_query_string += ')'
 
+    target_filter_string = ''
+    if target != '':
+        target_filter_string = 'TAG_ID=' + str(target['id'])
+
     report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "LOCAL_DAYPART_ID", "LOCAL_DAYPART_NAME",
                                        "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
                                        "HOURS_LIVE"],
                         group_fields=["NETWORK_ID", "LOCAL_DAYPART_ID"],
                         dataset_filter="{net_string} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
-                            net_string=network_query_string, start_time=start_timestamp, end_time=end_timestamp))
+                            net_string=network_query_string, start_time=start_timestamp, end_time=end_timestamp),
+                        target_filter=target_filter_string)
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
@@ -230,6 +236,14 @@ def get_report_grid_data():
 @app_login.required_login
 def get_metrics():
     return json.dumps(rentrak_api.get_all_metrics(), default=atp_classes.JSONHandler.JSONHandler)
+
+
+@app.route('/findTags/', methods=['POST'])
+@app_login.required_login
+@cache
+def get_tags():
+    search_term = json.loads(request.data)['search']
+    return json.dumps(rentrak_api.search_endpoint('tags', search_term), default=atp_classes.JSONHandler.JSONHandler)
 
 
 @app.route('/admin/getUsers/')

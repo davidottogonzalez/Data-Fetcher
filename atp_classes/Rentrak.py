@@ -43,6 +43,16 @@ class Rentrak:
                 self.__user_token = json.loads(response.text)['authtoken']
                 self.__current_user = config['api']['rentrak']['username']
 
+    def logout(self):
+        headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
+
+        response = requests.post(self.api_url + '/auth/logout', headers=headers, verify=False)
+
+        if response.status_code != 200:
+            raise Exception('Error while logging out. ' + json.loads(response.text)['message'])
+        else:
+            return json.loads(response.text)
+
     def search_networks(self, search):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
@@ -60,6 +70,18 @@ class Rentrak:
 
         if response.status_code != 200:
             raise Exception('Error while getting tag info. ' + json.loads(response.text)['message'])
+        else:
+            return json.loads(response.text)
+
+    def search_endpoint(self, endpoint, search):
+        headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
+
+        response = requests.get(self.api_url + '/{endpoint}/'.format(endpoint=endpoint),
+                                params={"search": search}, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            raise Exception('Error while getting {endpoint} info. '.format(endpoint=endpoint) +
+                            json.loads(response.text)['message'])
         else:
             return json.loads(response.text)
 
@@ -94,6 +116,19 @@ class Rentrak:
         else:
             return json.loads(response.text)
 
+    def get_endpoint(self, endpoint, per_page=10, page_num=1, search=''):
+        headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
+        params = {"search": search, "per_page": per_page, "page": page_num}
+
+        response = requests.get(self.api_url + '/{endpoint}/'.format(endpoint=endpoint),
+                                headers=headers, params=params, verify=False)
+
+        if response.status_code != 200:
+            raise Exception('Error while getting {endpoint}. '.format(endpoint=endpoint) +
+                            json.loads(response.text)['message'])
+        else:
+            return json.loads(response.text)
+
     def get_all_tags(self):
         page = 1
         all_tags = []
@@ -109,6 +144,22 @@ class Rentrak:
                 all_tags+= next_tags
 
         return all_tags
+
+    def get_all_endpoint(self, endpoint):
+        page = 1
+        all_list = []
+        continue_gathering = True
+
+        while continue_gathering:
+            next_results = self.get_endpoint(endpoint, page_num=page)
+            page += 1
+
+            if len(next_results) == 0:
+                continue_gathering = False
+            else:
+                all_list += next_results
+
+        return all_list
 
     def submit_report(self, data):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}

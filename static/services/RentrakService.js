@@ -17,7 +17,25 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
         .then(function(res){
             return res.data;
         });
-    }
+    };
+
+    var getRentrakGridData = function(networkList, dayDate){
+
+        startTimeObj = new Date(dayDate + " 00:00:00");
+        endTimeObj = new Date(dayDate + " 00:00:00");
+        endTimeObj.setDate(endTimeObj.getDate() + 1);
+
+        stringStart = startTimeObj.getFullYear() + '-' + addZero(startTimeObj.getMonth() + 1) + '-' + addZero(startTimeObj.getDate())
+                      + 'T' + addZero(startTimeObj.getHours()) + ":" + addZero(startTimeObj.getMinutes()) + ":" + addZero(startTimeObj.getSeconds())
+
+        stringEnd = endTimeObj.getFullYear() + '-' + addZero(endTimeObj.getMonth() + 1) + '-' + addZero(endTimeObj.getDate())
+                      + 'T' + addZero(endTimeObj.getHours()) + ":" + addZero(endTimeObj.getMinutes()) + ":" + addZero(endTimeObj.getSeconds())
+
+        return $http.post('/getRentrakGridData/', {networks: networkList, start_time: stringStart, end_time: stringEnd})
+        .then(function(res){
+            return res.data;
+        });
+    };
 
     function addZero(i) {
         if (i < 10) {
@@ -27,6 +45,7 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
     }
 
     return {
-        getRentrakData: getRentrakData
+        getRentrakData: getRentrakData,
+        getRentrakGridData: getRentrakGridData
     };
 }]);

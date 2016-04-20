@@ -193,6 +193,39 @@ def get_report_data():
     return json.dumps(rows)
 
 
+@app.route('/getRentrakGridData/', methods=['POST'])
+@app_login.required_login
+@cache
+def get_report_grid_data():
+    networks_list = json.loads(request.data)['networks']
+    start_timestamp = json.loads(request.data)['start_time']
+    end_timestamp = json.loads(request.data)['end_time']
+
+    network_query_string = ''
+    for network in networks_list:
+        if network_query_string == '':
+            network_query_string += '(NETWORK_ID=' + str(network['id'])
+        else:
+            network_query_string += ' OR NETWORK_ID=' + str(network['id'])
+    network_query_string += ')'
+
+    report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "LOCAL_DAYPART_ID", "LOCAL_DAYPART_NAME",
+                                       "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
+                                       "HOURS_LIVE"],
+                        group_fields=["NETWORK_ID", "LOCAL_DAYPART_ID"],
+                        dataset_filter="{net_string} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
+                            net_string=network_query_string, start_time=start_timestamp, end_time=end_timestamp))
+
+    report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
+
+    while rentrak_api.get_report_status(report_id) != 'Completed':
+        time.sleep(2)
+
+    rows = rentrak_api.get_report_rows(report_id)
+
+    return json.dumps(rows)
+
+
 @app.route('/getMetrics/')
 @app_login.required_login
 def get_metrics():

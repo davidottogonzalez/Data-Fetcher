@@ -11,6 +11,10 @@ angular.module('myApp.navbar', [])
         $scope.tabs = [{
             title: 'Query',
             url: '/query'
+        },
+        {
+            title: 'Audience Grid',
+            url: '/grid'
         }];
 
         $scope.adminTabs = [];

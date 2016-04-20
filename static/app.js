@@ -5,6 +5,7 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.navbar',
   'myApp.query',
+  'myApp.grid',
   'myApp.login',
   'myApp.logout',
   'myApp.version',

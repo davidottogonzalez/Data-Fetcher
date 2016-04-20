@@ -6,13 +6,18 @@ class Rentrak:
     __current_user = None
 
     def __init__(self, api_url=None, username=None, password=None):
+        config = atp_classes.Config().get_config()
+
         if api_url:
             self.api_url = api_url
         else:
-            config = atp_classes.Config().get_config()
             self.api_url = config['api']['rentrak']['baseURL']
 
-        self.login(username, password)
+        if config['api']['rentrak']['auth_token'] != '':
+            self.__user_token = config['api']['rentrak']['auth_token']
+            self.__current_user = config['api']['rentrak']['username']
+        else:
+            self.login(username, password)
 
     def login(self, username=None, password=None):
         headers = {"Content-Type": "application/json"}

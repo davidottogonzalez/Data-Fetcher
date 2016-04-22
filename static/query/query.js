@@ -79,9 +79,15 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
             $scope.results = res.data;
             $scope.gatheringStatus = 'Querying Rentrak API';
 
+            if(res.data.length == 0){
+                $scope.gatheringInfo = false;
+                $scope.gatheringStatus = '';
+            }
+
             var rows_done = 0;
 
             angular.forEach($scope.results, function(row, index){
+                row.loading = true;
                 RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH, $scope.metrics_chosen)
                 .then(function(rows){
                     rows_done++;
@@ -91,6 +97,7 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
                     });
 
                     row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
+                    row.loading = false;
 
                     if(rows_done == $scope.results.length)
                     {
@@ -98,14 +105,20 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
                         $scope.gatheringStatus = '';
                     }
                 },function(res){
-                    $scope.gatheringInfo = false;
-                    $scope.gatheringStatus = '';
+                    rows_done++;
 
-                    $scope.errorResponse = true;
-                    $scope.errorMessage = 'Error: ' + res.data
+                    row.error = 'Error: ' + res.data;
+                    row.loading = '';
+
+                    if(rows_done == $scope.results.length)
+                    {
+                        $scope.gatheringInfo = false;
+                        $scope.gatheringStatus = '';
+                    }
                 });
             });
         },function(res){
+            $scope.errorResponse = true;
             $scope.errorMessage = 'Error: ' + res.data
         });
       }

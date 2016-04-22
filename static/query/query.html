@@ -123,6 +123,7 @@
                 <th ng-repeat="metric in metrics_chosen">
                     {{metric}}
                 </th>
+                <th>Status</th>
             </tr>
             <tr ng-repeat="row in results">
                 <td>{{row.ADVERTISER_ID}}</td>
@@ -138,6 +139,11 @@
                 <td>{{row.UNIT_LENGTH}}</td>
                 <td ng-repeat="metric in metrics_chosen">
                     {{row[metric]}}
+                </td>
+                <td>
+                    <span ng-show="row.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                    <span ng-show="row.error" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"
+                    title="{{row.error}}"></span>
                 </td>
             </tr>
         </table>

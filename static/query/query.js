@@ -22,13 +22,16 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
     function($scope, $http, ngDialog, ExcelService, RentrakService) {
       $scope.initiated = false;
       $scope.brand_id = '';
-      $scope.ad_id = '';
+      $scope.adv_id = '';
       $scope.deal_id = '';
       $scope.st_week_id = '';
       $scope.end_week_id = '';
-      $scope.ad_name = '';
+      $scope.adv_name = '';
       $scope.brand_name = '';
       $scope.deal_name = '';
+      $scope.search_adv_name = '';
+      $scope.search_brand_name = '';
+      $scope.search_deal_name = '';
       $scope.results = [];
       $scope.metrics = [];
       $scope.metrics_chosen = [];
@@ -66,7 +69,7 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
       $scope.query = function() {
         var params = {};
         params.brand_id = $scope.brand_id;
-        params.ad_id = $scope.ad_id;
+        params.adv_id = $scope.adv_id;
         params.st_week_id = $scope.st_week_id;
         params.end_week_id = $scope.end_week_id;
         params.deal_id = $scope.deal_id;
@@ -75,64 +78,84 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
         $scope.gatheringInfo = true;
         $scope.gatheringStatus = 'Querying On-Air as-run logs';
 
-        $http.post('/queryWithParams/', {params: params}).then(function(res){
-            $scope.results = res.data;
-            $scope.gatheringStatus = 'Querying Rentrak API';
+        if(params.brand_id != '' || params.adv_id != '' || params.deal_id != '')
+        {
+            $http.post('/queryWithParams/', {params: params}).then(function(res){
+                $scope.results = res.data;
+                $scope.gatheringStatus = 'Querying Rentrak API';
 
-            if(res.data.length == 0){
-                $scope.gatheringInfo = false;
-                $scope.gatheringStatus = '';
-            }
+                if(res.data.length == 0){
+                    $scope.gatheringInfo = false;
+                    $scope.gatheringStatus = '';
+                }
 
-            var rows_done = 0;
+                var rows_done = 0;
 
-            angular.forEach($scope.results, function(row, index){
-                row.loading = true;
-                RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH, $scope.metrics_chosen)
-                .then(function(rows){
-                    rows_done++;
+                angular.forEach($scope.results, function(row, index){
+                    row.loading = true;
+                    RentrakService.getRentrakData(row.PROPERTY_NAME, row.AIR_DTTM, row.UNIT_LENGTH, $scope.metrics_chosen)
+                    .then(function(rows){
+                        rows_done++;
 
-                    angular.forEach($scope.metrics_chosen, function(metric) {
-                        row[metric] = rows[0][metric];
+                        angular.forEach($scope.metrics_chosen, function(metric) {
+                            row[metric] = rows[0][metric];
+                        });
+
+                        row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
+                        row.loading = false;
+
+                        if(rows_done == $scope.results.length)
+                        {
+                            $scope.gatheringInfo = false;
+                            $scope.gatheringStatus = '';
+                        }
+                    },function(res){
+                        rows_done++;
+
+                        row.error = 'Error: ' + res.data;
+                        row.loading = '';
+
+                        if(rows_done == $scope.results.length)
+                        {
+                            $scope.gatheringInfo = false;
+                            $scope.gatheringStatus = '';
+                        }
                     });
-
-                    row.PROPERTY_NAME = row.PROPERTY_NAME + '/' + rows[0].network_name;
-                    row.loading = false;
-
-                    if(rows_done == $scope.results.length)
-                    {
-                        $scope.gatheringInfo = false;
-                        $scope.gatheringStatus = '';
-                    }
-                },function(res){
-                    rows_done++;
-
-                    row.error = 'Error: ' + res.data;
-                    row.loading = '';
-
-                    if(rows_done == $scope.results.length)
-                    {
-                        $scope.gatheringInfo = false;
-                        $scope.gatheringStatus = '';
-                    }
                 });
+            },function(res){
+                $scope.errorResponse = true;
+                $scope.errorMessage = 'Error: ' + res.data;
             });
-        },function(res){
+        }else{
+            $scope.gatheringInfo = false;
+            $scope.gatheringStatus = '';
             $scope.errorResponse = true;
-            $scope.errorMessage = 'Error: ' + res.data
-        });
+            $scope.errorMessage = 'Error: Need to chose at least one parameter to submit.';
+        }
       }
 
       $scope.getAdvertiser = function(search) {
-        return $http.post('/findAdvertisers/', {search: search}).then(function(res){
-            return res.data.map(function(ad){
-                return ad;
+        var params = {
+            search: search,
+            brand_id: $scope.brand_id,
+            deal_id: $scope.deal_id
+        }
+
+        return $http.post('/findAdvertisers/', params).then(function(res){
+            return res.data.map(function(adv){
+                return adv;
               });
         });
       };
 
       $scope.getBrand = function(search) {
-        return $http.post('/findBrands/', {search: search}).then(function(res){
+        var params = {
+            search: search,
+            adv_id: $scope.adv_id,
+            deal_id: $scope.deal_id
+        }
+
+        return $http.post('/findBrands/', params).then(function(res){
             return res.data.map(function(b){
                 return b;
               });
@@ -140,26 +163,35 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
       };
 
       $scope.getDeal = function(search) {
-        return $http.post('/findDeals/', {search: search}).then(function(res){
+        var params = {
+            search: search,
+            adv_id: $scope.adv_id,
+            brand_id: $scope.brand_id
+        }
+
+        return $http.post('/findDeals/', params).then(function(res){
             return res.data.map(function(d){
                 return d;
               });
         });
       };
 
-      $scope.onAdSelect = function($item, $model, $label, $event) {
-        $scope.ad_id = $item.ADVERTISER_ID;
-        $scope.ad_name = $item.ADVERTISER_NAME;
+      $scope.onAdvSelect = function($item, $model, $label, $event) {
+        $scope.adv_id = $item.ADVERTISER_ID;
+        $scope.adv_name = $item.ADVERTISER_NAME;
+        $scope.search_adv_name = '';
       }
 
       $scope.onBrandSelect = function($item, $model, $label, $event) {
         $scope.brand_id = $item.BRAND_ID;
         $scope.brand_name = $item.BRAND_NAME;
+        $scope.search_brand_name = '';
       }
 
       $scope.onDealSelect = function($item, $model, $label, $event) {
         $scope.deal_id = $item.DEAL_ID;
         $scope.deal_name = $item.DEAL_NAME;
+        $scope.search_deal_name = '';
       }
 
       $scope.onMetricSelect = function() {
@@ -170,7 +202,22 @@ angular.module('myApp.query', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesM
                 $scope.metrics_chosen.push(metric.name);
             }
         });
-      }
+      };
+
+      $scope.clearAdv = function() {
+        $scope.adv_id = '';
+        $scope.adv_name = '';
+      };
+
+      $scope.clearBrand = function() {
+        $scope.brand_id = '';
+        $scope.brand_name = '';
+      };
+
+      $scope.clearDeal = function() {
+        $scope.deal_id = '';
+        $scope.deal_name = '';
+      };
 
       $scope.exportToExcel=function(tableId){
         ExcelService.tableToExcel(tableId, 'Data Fetcher');

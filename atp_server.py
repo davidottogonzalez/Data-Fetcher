@@ -80,15 +80,26 @@ def query_with_params():
         JOIN property p on (dhc.property_cd = p.property_cd and dhc.src_sys_id = p.src_sys_id)
 
         WHERE sdf.src_sys_id = 1030
-        AND sdf.advertiser_id = {ad_id}
-        AND sdf.brand_id = {brand_id}
-        AND sdf.deal_id = {deal_id}
         AND brdcast_week_id >= {st_week_id}
         AND brdcast_week_id <= {end_week_id}
         AND business_type_cd = 'CURRENT_CONTRACTS'
         ''' \
-        .format(ad_id=form_params['ad_id'], brand_id=form_params['brand_id'], deal_id=form_params['deal_id'],
-                st_week_id=form_params['st_week_id'], end_week_id=form_params['end_week_id'])
+        .format(st_week_id=form_params['st_week_id'], end_week_id=form_params['end_week_id'])
+
+    if form_params['adv_id'] != '':
+        query_string += '''
+        AND sdf.advertiser_id = {adv_id}
+        '''.format(adv_id=form_params['adv_id'])
+
+    if form_params['brand_id'] != '':
+        query_string += '''
+        AND sdf.brand_id = {brand_id}
+        '''.format(adv_id=form_params['brand_id'])
+
+    if form_params['deal_id'] != '':
+        query_string += '''
+        AND sdf.deal_id = {deal_id}
+        '''.format(deal_id=form_params['deal_id'])
 
     print query_string
 
@@ -105,14 +116,32 @@ def query_with_params():
 @cache
 def find_advertisers():
     search = json.loads(request.data)['search']
+    brand_id = json.loads(request.data)['brand_id']
+    deal_id = json.loads(request.data)['deal_id']
 
     query_string = '''
-        SELECT ADVERTISER_ID, ADVERTISER_NAME
-        FROM ADVERTISER
+        SELECT adv.ADVERTISER_ID, adv.ADVERTISER_NAME
+        FROM ADVERTISER adv
+        JOIN SALES_DETAIL_FACT sdf
+        ON adv.ADVERTISER_ID = sdf.ADVERTISER_ID
         WHERE LOWER(ADVERTISER_NAME) LIKE LOWER('{search}%')
-        AND SRC_SYS_ID = 1030
+        AND sdf.SRC_SYS_ID = 1030
         ''' \
         .format(search=search)
+
+    if brand_id != '':
+        query_string += '''
+        AND sdf.BRAND_ID = '{brand_id}'
+        '''.format(brand_id=brand_id)
+
+    if deal_id != '':
+        query_string += '''
+        AND sdf.DEAL_ID = '{deal_id}'
+        '''.format(deal_id=deal_id)
+
+    query_string += '''
+        GROUP BY adv.ADVERTISER_ID, adv.ADVERTISER_NAME
+        '''
 
     results = teradata_db.execute_query(query_string)
 
@@ -127,14 +156,32 @@ def find_advertisers():
 @cache
 def find_brands():
     search = json.loads(request.data)['search']
+    adv_id = json.loads(request.data)['adv_id']
+    deal_id = json.loads(request.data)['deal_id']
 
     query_string = '''
-        SELECT BRAND_ID, BRAND_NAME
-        FROM BRAND
+        SELECT b.BRAND_ID, b.BRAND_NAME
+        FROM BRAND b
+        JOIN SALES_DETAIL_FACT sdf
+        ON b.BRAND_ID = sdf.BRAND_ID
         WHERE LOWER(BRAND_NAME) LIKE LOWER('{search}%')
-        AND SRC_SYS_ID = 1030
+        AND sdf.SRC_SYS_ID = 1030
         ''' \
         .format(search=search)
+
+    if adv_id != '':
+        query_string += '''
+        AND sdf.ADVERTISER_ID = '{adv_id}'
+        '''.format(adv_id=adv_id)
+
+    if deal_id != '':
+        query_string += '''
+        AND sdf.DEAL_ID = '{deal_id}'
+        '''.format(deal_id=deal_id)
+
+    query_string += '''
+        GROUP BY b.BRAND_ID, b.BRAND_NAME
+        '''
 
     results = teradata_db.execute_query(query_string)
 
@@ -149,6 +196,8 @@ def find_brands():
 @cache
 def find_deals():
     search = json.loads(request.data)['search']
+    brand_id = json.loads(request.data)['brand_id']
+    adv_id = json.loads(request.data)['adv_id']
 
     query_string = '''
         SELECT DISTINCT DEAL_NAME, DEAL_ID
@@ -157,6 +206,16 @@ def find_deals():
         AND SRC_SYS_ID = 1030
         ''' \
         .format(search=search)
+
+    if brand_id != '':
+        query_string += '''
+        AND BRAND_ID = '{brand_id}'
+        '''.format(brand_id=brand_id)
+
+    if adv_id != '':
+        query_string += '''
+        AND ADVERTISER_ID = '{adv_id}'
+        '''.format(adv_id=adv_id)
 
     results = teradata_db.execute_query(query_string)
 

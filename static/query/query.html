@@ -3,78 +3,74 @@
         <div class="col-md-10 sectionsContainer">
             <form class="form-horizontal" role="form">
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="ad_id">Ad ID:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="ad_id" ng-model="ad_id" placeholder="Ad ID" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="ad_id">Ad Name:</label>
+                    <label class="control-label col-sm-2" for="search_adv_name">Advertiser Name:</label>
                     <div class="col-sm-10">
                         <div class="right-inner-addon">
                             <i ng-show="loadingAdvertisers" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></i>
-                            <input type="text" class="form-control" id="ad_name" ng-model="ad_name" placeholder="Ad Name"
-                               typeahead-min-length="3" uib-typeahead="ad_name as ad.ADVERTISER_NAME for ad in getAdvertiser($viewValue)"
-                               typeahead-loading="loadingAdvertisers" typeahead-no-results="noAdResults" autocomplete='off'
-                               typeahead-on-select="onAdSelect($item, $model, $label, $event)">
+                            <input type="text" class="form-control" id="search_adv_name" ng-model="search_adv_name" placeholder="Advertiser Name"
+                               typeahead-min-length="3" uib-typeahead="adv_name as adv.ADVERTISER_NAME for adv in getAdvertiser($viewValue)"
+                               typeahead-loading="loadingAdvertisers" typeahead-no-results="noAdvResults" autocomplete='off'
+                               typeahead-on-select="onAdvSelect($item, $model, $label, $event)" typeahead-wait-ms="600">
                         </div>
-                        <div ng-show="noAdResults">
+                        <div ng-show="noAdvResults">
                           <i class="glyphicon glyphicon-remove"></i> No Results Found
                         </div>
+                        <div ng-show="adv_id">
+                            <strong>Chosen:</strong> {{adv_name}}
+                            <i class="glyphicon glyphicon-remove" ng-click="clearAdv()"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="brand_id">Brand ID:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="brand_id" ng-model="brand_id" placeholder="Brand ID" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="ad_id">Brand Name:</label>
+                    <label class="control-label col-sm-2" for="search_brand_name">Brand Name:</label>
                     <div class="col-sm-10">
                         <div class="right-inner-addon">
                             <i ng-show="loadingBrands" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></i>
-                            <input type="text" class="form-control" id="brand_name" ng-model="brand_name" placeholder="Brand Name"
+                            <input type="text" class="form-control" id="search_brand_name" ng-model="search_brand_name" placeholder="Brand Name"
                                typeahead-min-length="3" uib-typeahead="brand_name as b.BRAND_NAME for b in getBrand($viewValue)"
                                typeahead-loading="loadingBrands" typeahead-no-results="noBrandResults" autocomplete='off'
-                               typeahead-on-select="onBrandSelect($item, $model, $label, $event)">
+                               typeahead-on-select="onBrandSelect($item, $model, $label, $event)" typeahead-wait-ms="600">
                         </div>
                         <div ng-show="noBrandResults">
                           <i class="glyphicon glyphicon-remove"></i> No Results Found
                         </div>
+                        <div ng-show="brand_id">
+                            <strong>Chosen:</strong> {{brand_name}}
+                            <i class="glyphicon glyphicon-remove" ng-click="clearBrand()"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="deal_id">Deal ID:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="deal_id" ng-model="deal_id" placeholder="Deal ID" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="deal_name">Deal Name:</label>
+                    <label class="control-label col-sm-2" for="search_deal_name">Deal Name:</label>
                     <div class="col-sm-10">
                         <div class="right-inner-addon">
                             <i ng-show="loadingDeals" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></i>
-                            <input type="text" class="form-control" id="deal_name" ng-model="deal_name" placeholder="Deal Name"
+                            <input type="text" class="form-control" id="search_deal_name" ng-model="search_deal_name" placeholder="Deal Name"
                                typeahead-min-length="3" uib-typeahead="deal_name as d.DEAL_NAME for d in getDeal($viewValue)"
                                typeahead-loading="loadingDeals" typeahead-no-results="noDealResults" autocomplete='off'
-                               typeahead-on-select="onDealSelect($item, $model, $label, $event)">
+                               typeahead-on-select="onDealSelect($item, $model, $label, $event)" typeahead-wait-ms="600">
                         </div>
                         <div ng-show="noDealResults">
                           <i class="glyphicon glyphicon-remove"></i> No Results Found
+                        </div>
+                        <div ng-show="deal_id">
+                            <strong>Chosen:</strong> {{deal_name}}
+                            <i class="glyphicon glyphicon-remove" ng-click="clearDeal()"></i>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-2" for="st_week_id">Start Week ID:</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="st_week_id" ng-model="st_week_id" placeholder="Start Week ID">
+                        <input type="text" class="form-control" id="st_week_id" ng-model="st_week_id" placeholder="Start Week ID"
+                               required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-2" for="end_week_id">End Week ID:</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="end_week_id" ng-model="end_week_id" placeholder="End Week ID">
+                        <input type="text" class="form-control" id="end_week_id" ng-model="end_week_id" placeholder="End Week ID"
+                               required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -109,11 +105,8 @@
         </div>
         <table id="results_table" class="table table-bordered">
             <tr>
-                <th>Advertiser ID</th>
                 <th>Advertiser Name</th>
-                <th>Brand ID</th>
                 <th>Brand Name</th>
-                <th>Deal ID</th>
                 <th>Deal Name</th>
                 <th>Broadcast Week</th>
                 <th>Air Date/Time</th>
@@ -126,11 +119,8 @@
                 <th>Status</th>
             </tr>
             <tr ng-repeat="row in results">
-                <td>{{row.ADVERTISER_ID}}</td>
                 <td>{{row.ADVERTISER_NAME}}</td>
-                <td>{{row.BRAND_ID}}</td>
                 <td>{{row.BRAND_NAME}}</td>
-                <td>{{row.DEAL_ID}}</td>
                 <td>{{row.DEAL_NAME}}</td>
                 <td>{{row.BRDCAST_WEEK_ID}}</td>
                 <td>{{row.AIR_DTTM}}</td>

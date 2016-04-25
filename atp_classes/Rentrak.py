@@ -54,9 +54,10 @@ class Rentrak:
             return json.loads(response.text)
 
     def search_networks(self, search):
+        mapper = atp_classes.Mapper()
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/networks', params={"search": search}, headers=headers)
+        response = requests.get(self.api_url + '/networks', params={"search": mapper.map_netowrk(search)}, headers=headers)
 
         if response.status_code != 200:
             raise Exception('Error while getting network info. ' + json.loads(response.text)['message'])

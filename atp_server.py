@@ -244,7 +244,7 @@ def get_report_data():
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
-    while rentrak_api.get_report_status(report_id).lower() != 'completed' or \
+    while rentrak_api.get_report_status(report_id).lower() != 'completed' and \
             rentrak_api.get_report_status(report_id).lower() != 'failed':
         time.sleep(2)
 
@@ -287,7 +287,7 @@ def get_report_grid_data():
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
-    while rentrak_api.get_report_status(report_id).lower() != 'completed' or \
+    while rentrak_api.get_report_status(report_id).lower() != 'completed' and \
             rentrak_api.get_report_status(report_id).lower() != 'failed':
         time.sleep(2)
 

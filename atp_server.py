@@ -244,8 +244,12 @@ def get_report_data():
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
-    while rentrak_api.get_report_status(report_id) != 'Completed':
+    while rentrak_api.get_report_status(report_id).lower() != 'completed' or \
+            rentrak_api.get_report_status(report_id).lower() != 'failed':
         time.sleep(2)
+
+    if rentrak_api.get_report_status(report_id) == 'failed':
+        raise Exception('Error while submitting report. Report generating returning status "failed"')
 
     rows = rentrak_api.get_report_rows(report_id)
 
@@ -283,8 +287,12 @@ def get_report_grid_data():
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
-    while rentrak_api.get_report_status(report_id) != 'Completed':
+    while rentrak_api.get_report_status(report_id).lower() != 'completed' or \
+            rentrak_api.get_report_status(report_id).lower() != 'failed':
         time.sleep(2)
+
+    if rentrak_api.get_report_status(report_id) == 'failed':
+        raise Exception('Error while submitting report. Report generating returning status "failed"')
 
     rows = rentrak_api.get_report_rows(report_id)
 

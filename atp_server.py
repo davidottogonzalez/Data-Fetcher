@@ -94,7 +94,7 @@ def query_with_params():
     if form_params['brand_id'] != '':
         query_string += '''
         AND sdf.brand_id = {brand_id}
-        '''.format(adv_id=form_params['brand_id'])
+        '''.format(brand_id=form_params['brand_id'])
 
     if form_params['deal_id'] != '':
         query_string += '''

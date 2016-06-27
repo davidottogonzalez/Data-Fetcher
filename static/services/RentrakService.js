@@ -46,6 +46,7 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
 
     return {
         getRentrakData: getRentrakData,
-        getRentrakGridData: getRentrakGridData
+        getRentrakGridData: getRentrakGridData,
+        addZero: addZero
     };
 }]);

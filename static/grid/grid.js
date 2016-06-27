@@ -101,11 +101,14 @@ angular.module('myApp.grid', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesMo
             name: 'USA'
         }
       ];
+      $scope.shows_part = [];
       $scope.day_date = '';
       $scope.chosen_target = '';
 
       $scope.gatheringInfo = false;
       $scope.errorResponse = false;
+      $scope.showGrid = true;
+      $scope.showShowLevel = false;
 
       $scope.init = function() {
         $scope.initiated = true;
@@ -151,14 +154,55 @@ angular.module('myApp.grid', ['ngRoute', 'ui.bootstrap', 'ngDialog', 'ServicesMo
         angular.forEach($scope.networks, function(network, index){
             angular.forEach(rows, function(row){
                 if(row.network_id == network.id){
-                    $scope.networks[index][pre + row.local_daypart_name] = {};
-                    $scope.networks[index][pre + row.local_daypart_name].reach_live = Math.round(row.reach_live);
-                    $scope.networks[index][pre + row.local_daypart_name].reach_dvr_same_day = Math.round(row.reach_dvr_same_day);
-                    $scope.networks[index][pre + row.local_daypart_name].reach_live_plus_dvr_same_day = Math.round(row.reach_live_plus_dvr_same_day);
+                    $scope.networks[index][pre + row.national_daypart_name] = {};
+                    $scope.networks[index][pre + row.national_daypart_name].reach_live = Math.round(row.reach_live);
+                    $scope.networks[index][pre + row.national_daypart_name].reach_dvr_same_day = Math.round(row.reach_dvr_same_day);
+                    $scope.networks[index][pre + row.national_daypart_name].reach_live_plus_dvr_same_day = Math.round(row.reach_live_plus_dvr_same_day);
                 }
             });
         });
       };
+
+      $scope.getShowLevel = function(daypart_id, network_id){
+        $scope.shows_part = [];
+
+        $scope.errorResponse = false;
+        $scope.gatheringInfo = true;
+        $scope.gatheringStatus = 'Querying Rentrak API';
+
+        $scope.showGrid = false;
+        $scope.showShowLevel = true;
+
+        var startTimeObj = new Date($scope.day_date + " 00:00:00");
+        var endTimeObj = new Date($scope.day_date + " 00:00:00");
+        endTimeObj.setDate(endTimeObj.getDate() + 1);
+
+        var stringStart = startTimeObj.getFullYear() + '-' + RentrakService.addZero(startTimeObj.getMonth() + 1) + '-' + RentrakService.addZero(startTimeObj.getDate())
+                      + 'T' + RentrakService.addZero(startTimeObj.getHours()) + ":" + RentrakService.addZero(startTimeObj.getMinutes()) + ":" + RentrakService.addZero(startTimeObj.getSeconds());
+
+        var stringEnd = endTimeObj.getFullYear() + '-' + RentrakService.addZero(endTimeObj.getMonth() + 1) + '-' + RentrakService.addZero(endTimeObj.getDate())
+                      + 'T' + RentrakService.addZero(endTimeObj.getHours()) + ":" + RentrakService.addZero(endTimeObj.getMinutes()) + ":" + RentrakService.addZero(endTimeObj.getSeconds());
+
+        $http.post('/getRentrakShowGridData/',{network_id: network_id, start_time: stringStart,
+        end_time: stringEnd, target: $scope.chosen_target, daypart_id: daypart_id})
+        .then(function(res){
+            $scope.shows_part = res.data;
+
+            $scope.gatheringInfo = false;
+            $scope.gatheringStatus = '';
+        },function(res){
+            $scope.gatheringInfo = false;
+            $scope.gatheringStatus = '';
+
+            $scope.errorResponse = true;
+            $scope.errorMessage = 'Error: ' + res.data
+        });
+      }
+
+      $scope.showToAudienceGrid = function(){
+        $scope.showShowLevel = false;
+        $scope.showGrid = true;
+      }
 
       $scope.exportToExcel=function(tableId){
         ExcelService.tableToExcel(tableId, 'Data Fetcher');

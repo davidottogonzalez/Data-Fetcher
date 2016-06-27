@@ -277,13 +277,50 @@ def get_report_grid_data():
     if target != '':
         target_filter_string = 'TAG_ID=' + str(target['id'])
 
-    report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "LOCAL_DAYPART_ID", "LOCAL_DAYPART_NAME",
+    report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
                                        "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
                                        "HOURS_LIVE"],
-                        group_fields=["NETWORK_ID", "LOCAL_DAYPART_ID"],
+                        group_fields=["NETWORK_ID", "NATIONAL_DAYPART_ID"],
                         dataset_filter="{net_string} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
                             net_string=network_query_string, start_time=start_timestamp, end_time=end_timestamp),
                         target_filter=target_filter_string)
+
+    report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
+
+    while rentrak_api.get_report_status(report_id).lower() != 'completed' and \
+            rentrak_api.get_report_status(report_id).lower() != 'failed':
+        time.sleep(2)
+
+    if rentrak_api.get_report_status(report_id).lower() == 'failed':
+        raise Exception('Error while submitting report. Report generating returning status "failed"')
+
+    rows = rentrak_api.get_report_rows(report_id)
+
+    return json.dumps(rows)
+
+
+@app.route('/getRentrakShowGridData/', methods=['POST'])
+@app_login.required_login
+@cache
+def get_report_show_grid_data():
+    network_id = json.loads(request.data)['network_id']
+    daypart_id = json.loads(request.data)['daypart_id']
+    start_timestamp = json.loads(request.data)['start_time']
+    end_timestamp = json.loads(request.data)['end_time']
+    target = json.loads(request.data)['target']
+
+    target_filter_string = ''
+    if target != '':
+        target_filter_string = 'TAG_ID=' + str(target['id'])
+
+    report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
+                                       "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
+                                       "HOURS_LIVE", "SERIES_ID", "SERIES_NAME", "AIRING_NATIONAL_START_TIME"],
+                        group_fields=["NETWORK_ID", "NATIONAL_DAYPART_ID", "SERIES_ID"],
+                        dataset_filter='''NETWORK_ID = {net_id} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'
+                         AND NATIONAL_DAYPART_ID = {dpart_id} AND NATIONAL_CONTENT = 1'''.format(
+                            net_id=network_id, start_time=start_timestamp, end_time=end_timestamp,
+                            dpart_id=daypart_id, target_filter=target_filter_string))
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 
@@ -358,6 +395,12 @@ def remove_user():
         return json.dumps({"status": True})
     else:
         return json.dumps({"status": False})
+
+
+@app.route('/test/')
+@app_login.required_login
+def test():
+    return json.dumps(rentrak_api.get_endpoint('dayparts'))
 
 
 @app.errorhandler(Exception)

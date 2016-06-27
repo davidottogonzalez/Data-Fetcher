@@ -48,7 +48,7 @@
                 {{errorMessage}}
             </div>
         </div>
-        <table id="results_table" class="table table-bordered">
+        <table id="results_table" class="table table-bordered" ng-show="showGrid">
             <tr>
                 <th></th>
                 <th ng-repeat="daypart in dayparts">
@@ -58,28 +58,46 @@
             <tr ng-repeat="network in networks">
                 <td>{{network.name}}</td>
                 <td ng-repeat="daypart in dayparts">
-                    <div align="center" style="font-weight: 700;">Reach Live</div>
-                    <div>Total:
-                        <formatting-data data="network[daypart.name].reach_live" type="'number'"></formatting-data>
-                    </div>
-                    <div>Target Total:
-                        <formatting-data data="network['tag_'+daypart.name].reach_live" type="'number'"></formatting-data>
-                    </div>
-                    <div align="center" style="font-weight: 700;">Reach DVR</div>
-                    <div>Total:
-                        <formatting-data data="network[daypart.name].reach_dvr_same_day" type="'number'"></formatting-data>
-                    </div>
-                    <div>Target Total:
-                        <formatting-data data="network['tag_'+daypart.name].reach_dvr_same_day" type="'number'"></formatting-data>
-                    </div>
-                    <div align="center" style="font-weight: 700;">Reach Live & DVR</div>
-                    <div>Total:
-                        <formatting-data data="network[daypart.name].reach_live_plus_dvr_same_day" type="'number'"></formatting-data>
-                    </div>
-                    <div>Target Total:
-                        <formatting-data data="network['tag_'+daypart.name].reach_live_plus_dvr_same_day" type="'number'"></formatting-data>
+                    <div ng-click="getShowLevel(daypart.id, network.id)">
+                        <div align="center" style="font-weight: 700;">Reach Live</div>
+                        <div>Total:
+                            <formatting-data data="network[daypart.name].reach_live" type="'number'"></formatting-data>
+                        </div>
+                        <div>Target Total:
+                            <formatting-data data="network['tag_'+daypart.name].reach_live" type="'number'"></formatting-data>
+                        </div>
+                        <div align="center" style="font-weight: 700;">Reach DVR</div>
+                        <div>Total:
+                            <formatting-data data="network[daypart.name].reach_dvr_same_day" type="'number'"></formatting-data>
+                        </div>
+                        <div>Target Total:
+                            <formatting-data data="network['tag_'+daypart.name].reach_dvr_same_day" type="'number'"></formatting-data>
+                        </div>
+                        <div align="center" style="font-weight: 700;">Reach Live & DVR</div>
+                        <div>Total:
+                            <formatting-data data="network[daypart.name].reach_live_plus_dvr_same_day" type="'number'"></formatting-data>
+                        </div>
+                        <div>Target Total:
+                            <formatting-data data="network['tag_'+daypart.name].reach_live_plus_dvr_same_day" type="'number'"></formatting-data>
+                        </div>
                     </div>
                 </td>
+            </tr>
+        </table>
+        <div ng-show="showShowLevel">
+            <div class="col-sm-offset-0 col-sm-10">
+                <button type="submit" class="btn btn-default" ng-click="showToAudienceGrid()">Back</button>
+            </div>
+        </div>
+        <table id="show_results_table" class="table table-bordered" ng-show="showShowLevel">
+            <th><div><strong>{{shows_part[0].network_name}} - {{shows_part[0].national_daypart_name}}</strong></div></th>
+            <tr ng-repeat="show in shows_part">
+                <td>Show: {{show.series_name}}</td>
+                <td>Reach Live: {{show.reach_live}}</td>
+                <td>Reach DVR Same Day: {{show.reach_dvr_same_day}}</td>
+                <td>Reach Live Plus DVR Same Day: {{show.reach_live_plus_dvr_same_day}}</td>
+                <td>Hours Live: {{show.hours_live}}</td>
+                <td>Start Time: {{show.airing_national_start_time}}</td>
             </tr>
         </table>
     </div>

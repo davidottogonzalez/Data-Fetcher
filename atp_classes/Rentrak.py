@@ -236,7 +236,7 @@ class Rentrak:
         target_filter_string = ''
 
         if target != '' and target != 0:
-            target_filter_string = 'TAG_ID=' + str(target)
+            target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
 
         report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
                                            "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
@@ -272,7 +272,7 @@ class Rentrak:
         all_rows = []
 
         if target != '' and target != 0:
-            target_filter_string = 'TAG_ID=' + str(target)
+            target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
 
         while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, hours=1):
             report_parms = dict(
@@ -302,7 +302,7 @@ class Rentrak:
             all_rows.extend(part_rows)
             start = start + timedelta(hours=1)
             end = end + timedelta(hours=1)
-            print "done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
+            print target + " : done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
 
         return all_rows
 
@@ -313,7 +313,7 @@ class Rentrak:
         all_rows = []
 
         if target != '' and target != 0:
-            target_filter_string = 'TAG_ID=' + str(target)
+            target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
 
         while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, minutes=1):
             report_parms = dict(
@@ -343,6 +343,6 @@ class Rentrak:
             all_rows.extend(part_rows)
             start = start + timedelta(minutes=1)
             end = end + timedelta(minutes=1)
-            print "done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
+            print target + " : done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
 
         return all_rows

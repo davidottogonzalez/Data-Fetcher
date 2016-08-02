@@ -25,7 +25,7 @@ class Rentrak:
 
         if username and password:
             response = requests.post(self.api_url + '/auth/login', headers=headers,
-                                     data=json.dumps({"user_id": username, "password": password}), verify=True)
+                                     data=json.dumps({"user_id": username, "password": password}), verify=False)
 
             if response.status_code != 200:
                 raise Exception('Error while logging in. ' + json.loads(response.text)['message'])
@@ -37,7 +37,7 @@ class Rentrak:
 
             response = requests.post(self.api_url + '/auth/login', headers=headers, data=json.dumps(
                 {"user_id": config['api']['rentrak']['username'], "password": config['api']['rentrak']['password']}),
-                                     verify=True)
+                                     verify=False)
 
             if response.status_code != 200:
                 raise Exception('Error while logging in. ' + json.loads(response.text)['message'])
@@ -48,7 +48,7 @@ class Rentrak:
     def logout(self):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.post(self.api_url + '/auth/logout', headers=headers, verify=True)
+        response = requests.post(self.api_url + '/auth/logout', headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while logging out. ' + json.loads(response.text)['message'])
@@ -60,7 +60,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/networks', params={"search": mapper.map_netowrk(search)},
-                                headers=headers, verify=True)
+                                headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting network info. ' + json.loads(response.text)['message'])
@@ -70,7 +70,7 @@ class Rentrak:
     def search_tags(self, search):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/tags/', params={"search": search}, headers=headers, verify=True)
+        response = requests.get(self.api_url + '/tags/', params={"search": search}, headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting tag info. ' + json.loads(response.text)['message'])
@@ -81,7 +81,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/{endpoint}/'.format(endpoint=endpoint),
-                                params={"search": search}, headers=headers, verify=True)
+                                params={"search": search}, headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting {endpoint} info. '.format(endpoint=endpoint) +
@@ -92,7 +92,7 @@ class Rentrak:
     def get_all_metrics(self):
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
-        response = requests.get(self.api_url + '/metrics/', headers=headers, verify=True)
+        response = requests.get(self.api_url + '/metrics/', headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting metrics. ' + json.loads(response.text)['message'])
@@ -103,7 +103,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/users/' + self.__current_user + '/reports/', headers=headers,
-                                verify=True)
+                                verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting reports. ' + json.loads(response.text)['message'])
@@ -114,7 +114,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
         params = {"search": search, "per_page": per_page, "page": page_num}
 
-        response = requests.get(self.api_url + '/tags/', headers=headers, params=params, verify=True)
+        response = requests.get(self.api_url + '/tags/', headers=headers, params=params, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting tags. ' + json.loads(response.text)['message'])
@@ -126,7 +126,7 @@ class Rentrak:
         params = {"search": search, "per_page": per_page, "page": page_num}
 
         response = requests.get(self.api_url + '/{endpoint}/'.format(endpoint=endpoint),
-                                headers=headers, params=params, verify=True)
+                                headers=headers, params=params, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting {endpoint}. '.format(endpoint=endpoint) +
@@ -170,7 +170,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.post(self.api_url + '/users/' + self.__current_user + '/reports/',
-                                 headers=headers, data=data, verify=True)
+                                 headers=headers, data=data, verify=False)
 
         if response.status_code != 202:
             raise Exception('Error while submitting report. ' + json.loads(response.text)['message'])
@@ -186,7 +186,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.get(self.api_url + '/users/' + self.__current_user + '/reportqueue/' + report_id,
-                                headers=headers, verify=True)
+                                headers=headers, verify=False)
 
         if response.status_code != 200:
             raise Exception('Error while getting report status. ' + json.loads(response.text)['message'])
@@ -198,7 +198,7 @@ class Rentrak:
             else:
                 return str(response_json['pct_complete']) + "% complete"
 
-    def get_report_rows(self, report_id):
+    def get_report_rows(self, report_id, per_page=500):
         all_rows = []
         part_rows = []
         response = None
@@ -207,8 +207,8 @@ class Rentrak:
 
         while not response or len(part_rows) != 0:
             response = requests.get(
-                self.api_url + '/users/' + self.__current_user + '/reports/' + report_id + '/rows?page=' + str(page),
-                headers=headers, verify=True)
+                self.api_url + '/users/' + self.__current_user + '/reports/' + report_id + '/rows?page=' + str(page) +
+                '&per_page=' + str(per_page), headers=headers, verify=False)
 
             if response.status_code != 200:
                 raise Exception('Error while getting report rows. ' + json.loads(response.text)['message'])
@@ -223,7 +223,7 @@ class Rentrak:
         headers = {"Content-Type": "application/json", "Authorization": "RAP " + self.__user_token}
 
         response = requests.delete(self.api_url + '/users/' + self.__current_user + '/reports/' + report_id,
-                                headers=headers, verify=True)
+                                   headers=headers, verify=False)
 
         if response.status_code != 204:
             raise Exception('Error while deleting report. ' + json.loads(response.text)['message'])
@@ -308,23 +308,73 @@ class Rentrak:
 
     def get_show_level_by_minute(self, day_date, target):
         start = datetime.strptime(day_date, "%d-%m-%Y")
-        end = start + timedelta(minutes=1)
+        end = start + timedelta(hours=1)
         target_filter_string = ''
         all_rows = []
 
         if target != '' and target != 0:
             target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
 
-        while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, minutes=1):
+        while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, hours=1):
             report_parms = dict(
                 select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
                                "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
-                               "HOURS_LIVE", "SERIES_ID", "SERIES_NAME", "AIRING_NATIONAL_START_TIME"],
-                group_fields=["NETWORK_ID", "NATIONAL_DAYPART_ID", "SERIES_ID"],
+                               "HOURS_LIVE", "SERIES_ID", "SERIES_NAME", "AIRING_NATIONAL_START_TIME",
+                               "NATIONAL_MINUTE"],
+                group_fields=["NETWORK_ID", "NATIONAL_MINUTE"],
+                dataset_filter='''NATIONAL_MINUTE>='{start_time}' AND NATIONAL_MINUTE<'{end_time}'
+                                     AND NATIONAL_CONTENT = 1'''.format(
+                    start_time=start.strftime('%Y-%m-%dT%H:%M:%S'), end_time=end.strftime('%Y-%m-%dT%H:%M:%S')),
+                target_filter=target_filter_string)
+
+            report_id = self.submit_report(json.dumps(report_parms))['report_id']
+
+            print "report submitted at - " + datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+            while self.get_report_status(report_id).lower() != 'completed' and \
+                            self.get_report_status(report_id).lower() != 'failed':
+                time.sleep(2)
+
+            print "report done at - " + datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+            if self.get_report_status(report_id).lower() == 'failed':
+                raise Exception('Error while submitting report. Report generating returning status "failed"')
+
+            part_rows = self.get_report_rows(report_id, 10000)
+            for part in part_rows:
+                part['segment_start'] = datetime.strptime(part['national_minute'], '%Y-%m-%d %H:%M:%S').strftime(
+                    '%Y-%m-%dT%H:%M:%S')
+                part['segment_end'] = (datetime.strptime(part['national_minute'], '%Y-%m-%d %H:%M:%S') +
+                                       timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S')
+
+            all_rows.extend(part_rows)
+            start = start + timedelta(hours=1)
+            end = end + timedelta(hours=1)
+            print target + " : done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
+
+        return all_rows
+
+    def get_show_level_by_minute_array(self, day_date, target):
+        start = datetime.strptime(day_date, "%d-%m-%Y")
+        end = start + timedelta(days=1)
+        target_filter_string = ''
+        all_rows = []
+
+        if target != '' and target != 0:
+            target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
+
+        while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, hours=1):
+            report_parms = dict(
+                select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
+                               "HOURS_ARRAY_DVR_15_DAY", "HOURS_ARRAY_DVR_1_DAY", "HOURS_ARRAY_DVR_2_DAY",
+                               "HOURS_ARRAY_LIVE", "HOURS_ARRAY_DVR_3_DAY", "HOURS_ARRAY_DVR_7_DAY",
+                               "HOURS_ARRAY_DVR_SAME_DAY", "SERIES_ID", "SERIES_NAME", "AIRING_NATIONAL_START_TIME"],
+                group_fields=["NETWORK_ID", "SERIES_ID"],
                 dataset_filter='''NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'
                                  AND NATIONAL_CONTENT = 1'''.format(
                     start_time=start.strftime('%Y-%m-%dT%H:%M:%S'), end_time=end.strftime('%Y-%m-%dT%H:%M:%S')),
-                target_filter=target_filter_string)
+                target_filter=target_filter_string,
+                array_element_length=60)
 
             report_id = self.submit_report(json.dumps(report_parms))['report_id']
 
@@ -335,14 +385,40 @@ class Rentrak:
             if self.get_report_status(report_id).lower() == 'failed':
                 raise Exception('Error while submitting report. Report generating returning status "failed"')
 
+            remove_att = ["hours_array_dvr_15_day", "hours_array_dvr_1_day", "hours_array_dvr_2_day",
+                          "hours_array_live",
+                          "hours_array_dvr_3_day", "hours_array_dvr_7_day", "hours_array_dvr_same_day"]
             part_rows = self.get_report_rows(report_id)
             for part in part_rows:
-                part['segment_start'] = start.strftime('%Y-%m-%dT%H:%M:%S')
-                part['segment_end'] = end.strftime('%Y-%m-%dT%H:%M:%S')
+                part_min = part.copy()
 
-            all_rows.extend(part_rows)
-            start = start + timedelta(minutes=1)
-            end = end + timedelta(minutes=1)
+                for att in remove_att:
+                    del part_min[att]
+
+                hours_dvr_15_array = part["hours_array_dvr_15_day"].split(',')
+                hours_dvr_1_array = part["hours_array_dvr_1_day"].split(',')
+                hours_dvr_2_array = part["hours_array_dvr_2_day"].split(',')
+                hours_live_array = part["hours_array_live"].split(',')
+                hours_dvr_3_array = part["hours_array_dvr_3_day"].split(',')
+                hours_dvr_7_array = part["hours_array_dvr_7_day"].split(',')
+                hours_dvr_same_array = part["hours_array_dvr_same_day"].split(',')
+
+                for min in range(0, 60):
+                    part_min['segment_start'] = (start + timedelta(minutes=min)).strftime('%Y-%m-%dT%H:%M:%S')
+                    part_min['segment_end'] = (end + timedelta(minutes=(min + 1))).strftime('%Y-%m-%dT%H:%M:%S')
+
+                    part_min["hours_dvr_15_day"] = hours_dvr_15_array[min]
+                    part_min["hours_dvr_1_day"] = hours_dvr_1_array[min]
+                    part_min["hours_dvr_2_day"] = hours_dvr_2_array
+                    part_min["hours_live"] = hours_live_array
+                    part_min["hours_dvr_3_day"] = hours_dvr_3_array
+                    part_min["hours_dvr_7_day"] = hours_dvr_7_array
+                    part_min["hours_dvr_same_day"] = hours_dvr_same_array
+
+                    all_rows.extend(part_min)
+
+            start = start + timedelta(days=1)
+            end = end + timedelta(days=1)
             print target + " : done with date: " + end.strftime('%Y-%m-%dT%H:%M:%S')
 
         return all_rows

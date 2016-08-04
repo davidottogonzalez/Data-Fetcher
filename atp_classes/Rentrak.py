@@ -306,7 +306,7 @@ class Rentrak:
 
         return all_rows
 
-    def get_show_level_by_minute(self, day_date, target):
+    def get_show_level_by_minute(self, day_date, target, fields=[]):
         start = datetime.strptime(day_date, "%d-%m-%Y")
         end = start + timedelta(hours=1)
         target_filter_string = ''
@@ -315,12 +315,14 @@ class Rentrak:
         if target != '' and target != 0:
             target_filter_string = 'TAG_ID=' + str(target) if isinstance(target, int) else target
 
+        if len(fields) == 0:
+            fields = ["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME", "REACH_LIVE",
+                      "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY", "HOURS_LIVE", "SERIES_ID", "SERIES_NAME",
+                      "AIRING_NATIONAL_START_TIME", "NATIONAL_MINUTE"]
+
         while end < datetime.strptime(day_date, "%d-%m-%Y") + timedelta(days=1, hours=1):
             report_parms = dict(
-                select_fields=["NETWORK_NAME", "NETWORK_ID", "NATIONAL_DAYPART_ID", "NATIONAL_DAYPART_NAME",
-                               "REACH_LIVE", "REACH_DVR_SAME_DAY", "REACH_LIVE_PLUS_DVR_SAME_DAY",
-                               "HOURS_LIVE", "SERIES_ID", "SERIES_NAME", "AIRING_NATIONAL_START_TIME",
-                               "NATIONAL_MINUTE"],
+                select_fields=fields,
                 group_fields=["NETWORK_ID", "NATIONAL_MINUTE"],
                 dataset_filter='''NATIONAL_MINUTE>='{start_time}' AND NATIONAL_MINUTE<'{end_time}'
                                      AND NATIONAL_CONTENT = 1'''.format(

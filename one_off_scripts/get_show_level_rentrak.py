@@ -63,7 +63,7 @@ for target_obj in targets:
             fout.write(str(row['segment_end']))
 
             for field in fields:
-                fout.write('|' + row[field.lower()])
+                fout.write('|' + str(row[field.lower()]))
 
             fout.write('\n')
 

@@ -342,7 +342,7 @@ class Rentrak:
             if self.get_report_status(report_id).lower() == 'failed':
                 raise Exception('Error while submitting report. Report generating returning status "failed"')
 
-            part_rows = self.get_report_rows(report_id, 10000)
+            part_rows = self.get_report_rows(report_id, 1000)
             for part in part_rows:
                 part['segment_start'] = datetime.strptime(part['national_minute'], '%Y-%m-%d %H:%M:%S').strftime(
                     '%Y-%m-%dT%H:%M:%S')

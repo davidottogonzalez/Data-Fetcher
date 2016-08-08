@@ -1,5 +1,5 @@
 import atp_classes
-import sys, datetime, warnings
+import sys, datetime, warnings, gc
 
 #special characters in series name
 reload(sys)
@@ -41,6 +41,9 @@ rentrak = atp_classes.Rentrak()
 
 for target_obj in targets:
     target = target_obj['definition']
+    rows = []
+
+    gc.collect()
 
     print 'Started pull at ' + datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 

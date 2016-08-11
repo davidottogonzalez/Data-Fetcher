@@ -27,6 +27,7 @@ for month in dates:
     split = month.split('-')
     mon_num = int(split[1])
     next_month = (mon_num + 1) % 12
+    next_month = 12 if mon_num == 0 else mon_num
     end_date = datetime.datetime.strptime(split[0]+'-'+str(next_month), '%Y-%m')
 
     for target_obj in targets:

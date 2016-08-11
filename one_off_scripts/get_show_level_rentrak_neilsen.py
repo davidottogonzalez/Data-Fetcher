@@ -24,7 +24,10 @@ data = []
 
 for month in dates:
     start_date = datetime.datetime.strptime(month, '%Y-%m')
-    end_date = start_date + datetime.timedelta(days=365 / 12)
+    split = month.split('-')
+    month = int(split[1])
+    next_month = (month + 1) % 12
+    end_date = datetime.datetime.strptime(split[0]+'-'+str(next_month), '%Y-%m')
 
     for target_obj in targets:
         gc.collect()

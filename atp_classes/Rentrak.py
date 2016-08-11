@@ -195,8 +195,10 @@ class Rentrak:
 
             if response_json.has_key('status') and response_json['status'] == "completed":
                 return "Completed"
+            elif response_json.has_key('status'):
+                return response_json['status']
             else:
-                return str(response_json['pct_complete']) + "% complete"
+                return "Running"
 
     def get_report_rows(self, report_id, per_page=500):
         all_rows = []

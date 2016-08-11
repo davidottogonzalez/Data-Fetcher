@@ -1,5 +1,5 @@
 import atp_classes
-import sys, datetime, warnings, gc, json, time
+import sys, datetime, warnings, gc, json, time, os
 
 # special characters in series name
 reload(sys)
@@ -28,6 +28,10 @@ for month in dates:
 
     for target_obj in targets:
         gc.collect()
+
+        if os.path.isfile(target_obj['name'] + '_' + month + '.json'):
+            print 'Skipping because file exists: ' + target_obj['name'] + '_' + month + '.json'
+            continue
 
         print 'Started pull at ' + datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -58,3 +62,5 @@ for month in dates:
 
         with open(target_obj['name'] + '_' + month + '.json', 'w') as outfile:
             json.dump(rows, outfile)
+
+        print "Done with " + target_obj['name'] + '_' + month + '.json'

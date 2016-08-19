@@ -15,7 +15,14 @@ angular.module('ServicesModule').factory('RentrakService', ['$http',
 
         return $http.post('/getRentrakData/', {network: network, start_time: stringStart, end_time: stringEnd, metrics: metricsList})
         .then(function(res){
-            return res.data;
+            data = res.data;
+
+            for(key in data[0]){
+                if(key.indexOf("_array_") != -1)
+                    data[0][key] = data[0][key].replace(/,/g,' ');
+            }
+
+            return data
         });
     };
 

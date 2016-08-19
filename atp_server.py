@@ -240,7 +240,8 @@ def get_report_data():
     report_parms = dict(select_fields=["NETWORK_NAME", "NETWORK_ID"] + metrics,
                         group_fields=["NETWORK_ID"],
                         dataset_filter="NETWORK_ID={net_id} AND NATIONAL_TIME>='{start_time}' AND NATIONAL_TIME<'{end_time}'".format(
-                            net_id=network['id'], start_time=start_timestamp, end_time=end_timestamp))
+                            net_id=network['id'], start_time=start_timestamp, end_time=end_timestamp),
+                        array_element_length=1)
 
     report_id = rentrak_api.submit_report(json.dumps(report_parms))['report_id']
 

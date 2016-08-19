@@ -8,3 +8,5 @@ tmp
 venv/
 *.pyc
 .runNumber
+*.csv
+one_off_scripts/*.json

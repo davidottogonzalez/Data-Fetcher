@@ -1,5 +1,5 @@
 import atp_classes
-import sys, datetime, warnings, gc, json, time, os
+import sys, datetime, warnings, gc, json, time, os, glob
 
 # special characters in series name
 reload(sys)
@@ -27,7 +27,7 @@ for month in dates:
     split = month.split('-')
     mon_num = int(split[1])
     next_month = (mon_num + 1) % 12
-    next_month = 12 if mon_num == 0 else mon_num
+    next_month = 12 if next_month == 0 else mon_num
     end_date = datetime.datetime.strptime(split[0]+'-'+str(next_month), '%Y-%m')
 
     for target_obj in targets:
@@ -68,3 +68,53 @@ for month in dates:
             json.dump(rows, outfile)
 
         print "Done with " + target_obj['name'] + '_' + month + '.json'
+
+
+for month in dates:
+    data = {}
+
+    if not os.path.isfile(month + '.json'):
+        for filename in glob.glob('./*' + month + '*.json'):
+            target = filename.split('_')[0].replace('./', '')
+            data_json = None
+
+            with open(filename) as json_data:
+                data_json = json.load(json_data)
+
+            if data_json:
+                for row in data_json:
+                    if not data.has_key(row['series_name']):
+                        data[row['series_name']] = {}
+
+                    data[row['series_name']][target] = row['reach_live']
+
+        with open(month + '.json', 'w') as outfile:
+            json.dump(data, outfile)
+    else:
+        with open(month + '.json') as json_data:
+            data = json.load(json_data)
+
+    write_tags = []
+
+    with open(month + '.csv', 'w') as outfile:
+        for showname, show_obj in data.iteritems():
+            for n_target, tar_obj in data[showname].iteritems():
+                if n_target == 'universe':
+                    continue
+                write_tags.append(n_target)
+            break
+
+        write_tags.sort()
+
+        for n_target in write_tags:
+            outfile.write('|'+n_target)
+
+        outfile.write('\n')
+
+        for showname, show_obj in data.iteritems():
+            outfile.write(showname)
+            for n_target in write_tags:
+                if n_target == 'universe':
+                    continue
+                outfile.write('|'+str(data[showname][n_target] / data[showname]['universe']))
+            outfile.write('\n')
